@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using Logger;
 
 namespace AddressBook
@@ -77,6 +78,63 @@ namespace AddressBook
             }
         }
 
+        //Пользователи из города заданого в параметр
+        public List<User> FindUserByFromCityAndBirthday(string city)
+        {
+            var list = new List<User>();
+           list= _users.FindAll(u => u._city == city &&( u._birthDate.Month ==DateTime.Today.Month&&u._birthDate.Day==DateTime.Today.Day));
+            return list;
+        }
+        //ключ мужчина-женщина
+        public List<User> FindUserByGender(string gender)
+        {
+            var list = new List<User>();
+            list=_users.FindAll(u => u._gender == gender);
+            return list;
+        }
+        //Пользователи с почтой gmail.com
+        public List<User> FindUserByGmail()
+        {
+            var list= new List<User>();
+            
+             list=_users.FindAll(u => u._email.Host == "gmail.com");
+            return list;
+        }
+
+        //старше 18 из Киева
+        public List<User> FindUserOlderEighteenFromKyiv()
+        {
+            DateTime today=DateTime.Today;
+            var list = new List<User>();
+
+           list= _users.FindAll(u =>today.Year- u._birthDate.Year>=18&&(u._city=="Kyiv"||u._city=="Київ"||u._city=="Киев"));
+            return list;
+        }
+        //От _ возраста до _ возраста
+        public List<User> FindUserFromAgeToAge(int from , int to)
+        {
+            DateTime today = DateTime.Today;
+            var list = new List<User>();
+            list = _users.FindAll(u => today.Year - u._birthDate.Year >= from&& today.Year - u._birthDate.Year <=to );
+            return list;
+        }
+
+        public List<User> FindUserGirlsForLastTenDays()
+        {
+            var list = new List<User>();
+            list = _users.FindAll(u => u._timeAdded ==DateTime.Today.AddDays(-10));
+            return list;
+        }
+        //
+        public List<User> FindUserBirthInJanuary()
+        {
+            DateTime today = DateTime.Today;
+            var list = new List<User>();
+            list = _users.FindAll(u => u._birthDate.Month==01  && u._address!=null&&u._phoneNumber!=null);
+            list.OrderByDescending(x => x._lastName) ;
+            return list;
+        }
+
         public void SetLogger(Logger.Logger logger)
         {
             this._logger = logger;
@@ -98,16 +156,16 @@ namespace AddressBook
     {
         public readonly string _firstName;
         public readonly string _lastName;
-        private readonly string _birthDate;
-        private readonly DateTime _timeAdded;
-        private readonly string _city;
-        private readonly string _address;
-        private readonly string _phoneNumber;
-        private readonly string _gender;
-        private readonly string _email;
+        public readonly DateTime _birthDate;
+        public readonly DateTime _timeAdded;
+        public readonly string _city;
+        public readonly string _address;
+        public readonly string _phoneNumber;
+        public readonly string _gender ;
+        public readonly MailAddress _email;
 
-        public User(string firstName, string lastName, string birthDate, string city, string address, string phoneNumber,
-            string gender, string email)
+        public User(string firstName, string lastName, DateTime birthDate, string city, string address, string phoneNumber,
+            string gender, MailAddress email)
         {
             this._firstName = firstName;
             this._lastName = lastName;
@@ -122,7 +180,7 @@ namespace AddressBook
 
         public override string ToString()
         {
-            return "User: " + _firstName + " Lastname: " + _lastName + " Address: " + _address;
+            return "User: " + _firstName + " Lastname: " + _lastName + " Address: " + _address+" City"+ _city;
         }
     }
 }
